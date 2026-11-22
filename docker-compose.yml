@@ -1,0 +1,16 @@
+services:
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: sqlite:///./insightiq.db
+      FRONTEND_URL: http://localhost:3000
+      BUSINESS_TIMEZONE: Asia/Kolkata
+      DEFAULT_CURRENCY: INR
+      INACTIVE_CUSTOMER_DAYS: 90
+    ports: ["8000:8000"]
+  frontend:
+    build: ./frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+    depends_on: [backend]
+    ports: ["3000:3000"]
