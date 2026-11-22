@@ -12,6 +12,16 @@ def test_overview_has_real_shapes():
 def test_chat_is_controlled():
     r=client.post('/api/v1/ai/chat',json={'message':'show top 5 products by revenue'}).json(); assert r['intent']=='top_products'; assert r['data']['rows']
 
+def test_monthly_revenue_chart_contains_real_series():
+    r=client.post('/api/v1/ai/chat',json={'message':'Show me monthly revenue as a chart'}).json()
+    assert r['intent']=='monthly_revenue'
+    assert r['tool_execution'][0]['tool']=='monthly_revenue'
+    assert r['tool_execution'][0]['status']=='success'
+    assert r['chart']['chart_type']=='line'
+    assert r['chart']['x_key']=='month'
+    assert r['chart']['series'][0]['data_key']=='revenue'
+    assert r['chart']['data']
+
 def test_customer_iso_datetime_is_persisted():
     before=SessionLocal().query(Customer).count()
     db=SessionLocal(); result=import_csv(db,'customers','customers.csv',b'customer_code,name,email,city,created_at\nTEST-ISO,Test User,test-iso@example.com,Delhi,2026-08-27T00:00:00\n'); row=db.query(Customer).filter(Customer.customer_code=='TEST-ISO').one(); assert result['imported_rows']==1; assert row.created_at.year==2026; assert db.query(Customer).count()==before+1; db.close()
